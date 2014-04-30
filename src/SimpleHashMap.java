@@ -39,7 +39,10 @@ public class SimpleHashMap<K, V> {
          * Constructs the map entry with the specified key and value.
          */
         public Entry(K k, V v) {
-            // TODO
+        	if (k == null || v == null)
+        		throw new NullPointerException();
+            this.key = k;
+            this.value = v;
         }
 
         /**
@@ -48,7 +51,7 @@ public class SimpleHashMap<K, V> {
          * @return the key corresponding to this entry
          */
         public K getKey() {
-            // TODO
+            return this.key;
         }
 
         /**
@@ -57,7 +60,7 @@ public class SimpleHashMap<K, V> {
          * @return the value corresponding to this entry
          */
         public V getValue() {
-            // TODO
+            return this.value;
         }
 
         /**
@@ -68,11 +71,14 @@ public class SimpleHashMap<K, V> {
          * @return old value corresponding to the entry
          */
         public V setValue(V value) {
-            // TODO
+        	if (value == null)
+        		throw new NullPointerException();
+            this.value = value;
         }
     }
 
-    // TODO You may add private fields here
+    public static final int INITIAL_CAPACITY = 11;
+    public static final double MAXIMUM_LOAD_FACTOR = 0.75;
 
 
     /**
@@ -93,7 +99,9 @@ public class SimpleHashMap<K, V> {
      * @throws NullPointerException if the specified key is <tt>null</tt>
      */
     public V get(Object key) {
-        // TODO
+    	if (key == null)
+    		throw new NullPointerException();
+    	// TODO
     }
 
     /**
@@ -115,7 +123,9 @@ public class SimpleHashMap<K, V> {
      * @throws NullPointerException if the key or value is <tt>null</tt>
      */
     public V put(K key, V value) {
-        // TODO
+        if (key == null || value == null)
+        	throw new NullPointerException();
+    	// TODO
     }
 
     /**
@@ -128,7 +138,9 @@ public class SimpleHashMap<K, V> {
      * @throws NullPointerException if key is <tt>null</tt>
      */
     public V remove(Object key) {
-        // TODO
+        if (k == null)
+        	throw new NullPointerException();
+    	// TODO
     }
 
     /**
