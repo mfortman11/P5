@@ -80,18 +80,21 @@ public class SimpleHashMap<K, V> {
         }
     }
 
-    private static final int INITIAL_CAPACITY = 11;
     private static final double MAXIMUM_LOAD_FACTOR = 0.75;
     private LinkedList<Entry<K,V>>[] map;
-
+    private int tableSizes[] = {11,23,47,97,197,397,797,1597,3203,6421,12853,25717,
+                                51437,102877,205759,411527,823117,1646237,3292489,
+                                6584983,13169977,26339969,52679969,105359939,210719881,
+                                421439783,842879579,1685759167};
+    private int tableIndex = 0;
 
     /**
      * Constructs an empty hash map with initial capacity <tt>11</tt> and
      * maximum load factor <tt>0.75</tt>.
-     **/
+     */
     public SimpleHashMap() {
         // TODO
-    	map = new LinkedList[INITIAL_CAPACITY];
+    	map = new LinkedList[tableSizes[0]];
     	
     }
 
@@ -144,7 +147,7 @@ public class SimpleHashMap<K, V> {
     	}
     	if ((double) filled / map.length > MAXIMUM_LOAD_FACTOR){
     		List<Entry<K, V>> l = entries();
-    		map = new LinkedList[INITIAL_CAPACITY];
+    		map = new LinkedList[tableSizes[tableIndex++]];
     		for(Entry<K, V> e: l){
     			put(e.getKey(),e.getValue());
     		}
@@ -169,9 +172,20 @@ public class SimpleHashMap<K, V> {
      * @throws NullPointerException if key is <tt>null</tt>
      */
     public V remove(Object key) {
-        if (k == null)
+        if (key == null)
         	throw new NullPointerException();
-    	// TODO
+    	int i = key.hashCode() % map.length;
+    	if (i < 0)
+    		i += map.length;
+    	LinkedList<Entry<K,V>> l = map[i];
+    	for (Entry<K,V> e: l) {
+    		if (e.getKey().equals(key)) {
+    			V v = e.getValue();
+    			l.remove(e);
+    			return v;
+    		}
+    	}
+    	return null;
     }
 
     /**
@@ -180,7 +194,13 @@ public class SimpleHashMap<K, V> {
      * @return the number of key-value mappings in this map
      */
     public int size() {
-        // TODO
+    	int count = 0;
+    	for(int i = 0; i<map.length; i++){
+    		for(Entry<K,V> e: map[i]){
+    			count++;
+    		}
+    	}
+    	return count;
     }
 
     /**
