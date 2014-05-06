@@ -157,9 +157,19 @@ public class SimpleHashMap<K, V> {
         	throw new NullPointerException();
     	Entry<K,V> e = new Entry<K,V>(key, value);
     	int i = e.getKey().hashCode() % map.length;
+    	Entry<K,V> previous = null;
     	if (i < 0) i += map.length;
     	LinkedList<Entry<K,V>> l = map[i];
+    	for(int j = 0; j<l.size(); j++){
+    		if(l.get(j).getKey().equals(key)){
+    			previous = l.get(j);
+    			l.get(j).setValue(value);
+    			return previous.getValue();
+    		}
+    			
+    	}
     	l.add(e);
+    	return null;
     }
 
     /**
