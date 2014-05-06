@@ -1,12 +1,15 @@
 
-public class Server {
+public class Page {
 	
-	private int max;
-	private int cache;
-	
+	private int time;
+	private int ip; 
 
-	public Server(int max, int cache){
-		this.max = max;
-		this.cache = cache;
+	public Page(int time, int ip){
+		this.maxPages = maxPages;
+		this.ip = ip;
+	}
+	
+	public getIP(){
+		
 	}
 }
