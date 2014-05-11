@@ -28,13 +28,19 @@ public class LoadBalancerMain
         boolean isVerbose = (args.length == 4) && (args[3].equals("-v"));
         
         String line;
-        SimpleHashMap<String, Integer> map = new SimpleHashMap<String, Integer>(); //TODO: Set the types for the HashMap
+        SimpleHashMap<String, WebPage> map = new SimpleHashMap<String, WebPage>();
+        int evictions =0;
+        long time = 0;
+        int[] counts = new int[maxServers];
         
-        
-        while (scanner.hasNextLine()) {
-						line = scanner.nextLine();
-						
-            //TODO: Handle each page request
+        while (scanner.hasNextLine() && scanner.hasNext()) {
+			line = scanner.nextLine();				
+			if(map.put(line, new WebPage(time, (int)(time % maxServers))) != null)
+				evictions++;
+			if(counts[(int)(time % maxServers)]++ > cacheSize){
+				//search through hashtable for ones in that server and find last accessed
+			}
+			time++;			
         }
         scanner.close();
         

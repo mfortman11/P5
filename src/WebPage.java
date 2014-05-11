@@ -1,10 +1,10 @@
 
-public class Page {
+public class WebPage {
 	
-	private int time;
+	private long time;
 	private int ip; 
 
-	public Page(int time, int ip){
+	public WebPage(long time, int ip){
 		this.maxPages = maxPages;
 		this.ip = ip;
 	}
