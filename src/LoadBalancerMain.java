@@ -1,7 +1,6 @@
 import java.io.*;
 import java.util.*;
 
-import SimpleHashMap.Entry;
 
 
 public class LoadBalancerMain
@@ -33,28 +32,49 @@ public class LoadBalancerMain
         SimpleHashMap<String, WebPage> map = new SimpleHashMap<String, WebPage>();
         int evictions =0;
         long time = 0;
+        long sCount = 0;
         int[] counts = new int[maxServers];
         int server;
         long lru;
+        String lruKey = null;
         while (scanner.hasNextLine() && scanner.hasNext()) {
 			line = scanner.nextLine();
-			server = (int)(time % maxServers);
-			if(map.put(line, new WebPage(time, server)) != null)
-				evictions++;
-			if(counts[server]++ > cacheSize){
-				//search through hashtable for ones in that server and find last accessed
-				lru = time;
-				for(Entry<String, WebPage> e: map.entries()){
-					if(e.getValue().getIP == server && e.getValue().getTime() < lru)
-						lru = e.getValue().getTime();
+			server = (int)(sCount % maxServers);
+			if (map.get(line) == null) {
+				
+				if(counts[server] >= cacheSize){
+					evictions++;
+					lru = time;
+					List<SimpleHashMap.Entry<String, WebPage>> entries = map.entries();
+					for(SimpleHashMap.Entry<String, WebPage> e: entries){
+						if(e.getValue().getIP() == server && e.getValue().getTime() < lru){
+							lru = e.getValue().getTime();
+							lruKey = e.getKey();
+						}
+					}
+					map.remove(lruKey);
+					System.out.println("Eviction made");
 				}
+				
+				map.put(line, new WebPage(time, server));
+				counts[server]++;
+				sCount++;
+			} else {
+				server = map.get(line).getIP();
+				map.put(line, new WebPage(time, server));
+				counts[server]++;
 			}
-			time++;			
+			time++;
+			System.out.println(line + " " + time);
         }
         scanner.close();
         
         //TODO: Output the number of requests routed to each server
+        for(int i = 0; i< counts.length;i++){
+        	System.out.println("192.168.0." + i +": "+ counts[i]);
+        }
         //TODO: Output the total number of evictions
+        System.out.println("Evictions: " + evictions);
     }
     
     
