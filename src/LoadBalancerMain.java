@@ -3,6 +3,7 @@ import java.util.*;
 
 
 
+
 public class LoadBalancerMain
 {
 
@@ -45,17 +46,26 @@ public class LoadBalancerMain
 				if(counts[server] >= cacheSize){
 					evictions++;
 					lru = time;
-					List<SimpleHashMap.Entry<String, WebPage>> entries = map.entries();
+					LinkedList<SimpleHashMap.Entry<String, WebPage>>[] mapArray = map.getMap();
+					for(int i = 0; i< mapArray.length;i++){
+						if(mapArray[i] != null){
+							for(SimpleHashMap.Entry<String, WebPage> e: mapArray[i]){
+								if(e.getValue().getIP() == server && e.getValue().getTime() < lru){
+									lru = e.getValue().getTime();
+									lruKey = e.getKey();
+								}	
+							}
+						}
+					}
+					/*List<SimpleHashMap.Entry<String, WebPage>> entries = map.entries();
 					for(SimpleHashMap.Entry<String, WebPage> e: entries){
 						if(e.getValue().getIP() == server && e.getValue().getTime() < lru){
 							lru = e.getValue().getTime();
 							lruKey = e.getKey();
 						}
-					}
+					}*/
 					map.remove(lruKey);
-					System.out.println("Eviction made");
 				}
-				
 				map.put(line, new WebPage(time, server));
 				counts[server]++;
 				sCount++;

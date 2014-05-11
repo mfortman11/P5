@@ -1,3 +1,18 @@
+///////////////////////////////////////////////////////////////////////////////
+//                   ALL STUDENTS COMPLETE THESE SECTIONS
+// Main Class File:  LoadBalancerMain.java
+// File:             SimpleHashMap.java
+// Semester:         CS367 Spring 2014
+//
+// Author:           Mike Fortman	mfortman@wisc.edu
+// CS Login:         fortman
+// Lecturer's Name:  Jim Skrentny
+//
+// Pair Partner:     Michael Darling
+// CS Login:         mdarling
+// Lecturer's Name:  Jim Skrentny
+//////////////////////////// 80 columns wide //////////////////////////////////
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -81,15 +96,16 @@ public class SimpleHashMap<K, V> {
             return this.value;
         }
     }
-
-    private static final double MAXIMUM_LOAD_FACTOR = 0.75;
-    private LinkedList<Entry<K,V>>[] map;
+    
+    private static final double MAXIMUM_LOAD_FACTOR = 0.75;//max % of map which can be filled
+    private LinkedList<Entry<K,V>>[] map;//holds the hashmap
+    //table of primes to resize map up to 2^31 -1
     private int tableSizes[] = {11,23,47,97,197,397,797,1597,3203,6421,12853,25717,
                                 51437,102877,205759,411527,823117,1646237,3292489,
                                 6584983,13169977,26339969,52679969,105359939,210719881,
                                 421439783,842879579,1685759167};
     private int tableIndex = 0;
-    private List<Entry<K,V>> entries;
+    private int numEntries = 0;//number of entries added to the hashmap
 
     /**
      * Constructs an empty hash map with initial capacity <tt>11</tt> and
@@ -97,8 +113,7 @@ public class SimpleHashMap<K, V> {
      */
     public SimpleHashMap() {
         // TODO
-    	map = new LinkedList[tableSizes[0]];
-    	entries = new LinkedList<Entry<K,V>>();
+    	map = new LinkedList[tableSizes[0]];//initializes hashmap
     }
 
     /**
@@ -111,19 +126,24 @@ public class SimpleHashMap<K, V> {
      * @throws NullPointerException if the specified key is <tt>null</tt>
      */
     public V get(Object key) {
+    	//makes sure parameter is valid
     	if (key == null)
     		throw new NullPointerException();
+    	//finds hashcode for the passed key
     	int i = key.hashCode() % map.length;
+    	//if hashcode is negative map length is added to make it postive
     	if (i < 0)
     		i += map.length;
+    	//finds the desired LinkedList and if null creates a new LinkedList
+    	//otherwise searches through the list to find the passed key
     	LinkedList<Entry<K,V>> l = map[i];
     	if (l == null) return null;
     	for (Entry<K,V> e: l) {
     		if (e.getKey().equals(key)) {
-    			return e.getValue();
+    			return e.getValue();//returns value of that entry if found
     		}
     	}
-    	return null;
+    	return null;//otherwise returns null
     }
 
     /**
@@ -145,14 +165,13 @@ public class SimpleHashMap<K, V> {
      * @throws NullPointerException if the key or value is <tt>null</tt>
      */
     public V put(K key, V value) {
-    	if ((double) entries.size() / map.length > MAXIMUM_LOAD_FACTOR){
+    	if ((double) numEntries / map.length > MAXIMUM_LOAD_FACTOR){
+    		List<Entry<K, V>> l = entries();
     		map = new LinkedList[tableSizes[tableIndex++]];
-    		List<Entry<K,V>> entriesCopy = new LinkedList<Entry<K,V>>();
-    		entriesCopy.addAll(entries);
-    		entries = new LinkedList<Entry<K,V>>();
-    		for(Entry<K, V> e: entriesCopy){
+    		for(Entry<K, V> e: l){
     			put(e.getKey(),e.getValue());
     		}
+
     		
     	}
         if (key == null || value == null)
@@ -165,7 +184,7 @@ public class SimpleHashMap<K, V> {
     		map[i] = new LinkedList<Entry<K,V>>();
     	}
     	LinkedList<Entry<K,V>> l = map[i];
-    	entries.add(e);
+    	numEntries++;
     	for(Entry<K,V> t: l){
     		if(t.getKey().equals(key)){
     			previous = t;
@@ -199,7 +218,7 @@ public class SimpleHashMap<K, V> {
     		if (e.getKey().equals(key)) {
     			V v = e.getValue();
     			l.remove(e);
-    			entries.remove(e);
+    			numEntries--;
     			return v;
     		}
     	}
@@ -212,7 +231,7 @@ public class SimpleHashMap<K, V> {
      * @return the number of key-value mappings in this map
      */
     public int size() {
-    	return entries.size();
+    	return numEntries;//returns private instance of number of entries
     }
 
     /**
@@ -224,6 +243,27 @@ public class SimpleHashMap<K, V> {
      * @return a list of mappings in this map
      */
     public List<Entry<K, V>> entries() {
+    	List<Entry<K, V>> entries = new LinkedList<Entry<K, V>>();
+    	LinkedList<Entry<K,V>> l;
+    	//loops through the array
+    	for (int i = 0; i < map.length; i++) {
+    		//makes sure the linked list isn't empty
+    		
+    		if (map[i] != null){
+    			l = map[i];
+    			//if it is not null adds each element of the LinkedList to entries
+    			for(Entry<K,V> e: l){
+    				entries.add(e);
+    			}
+    		}
+    	}
     	return entries;
+    }
+    /**
+     * returns array of the HashMap
+     * @return array of the HashMap
+     */
+    public LinkedList<Entry<K,V>>[] getMap(){
+    	return map;
     }
 }
