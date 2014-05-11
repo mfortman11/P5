@@ -5,11 +5,14 @@ public class WebPage {
 	private int ip; 
 
 	public WebPage(long time, int ip){
-		this.maxPages = maxPages;
+		this.time = time;
 		this.ip = ip;
 	}
 	
-	public getIP(){
-		
+	public int getIP(){
+		return ip;
+	}
+	public long getTime(){
+		return time;
 	}
 }

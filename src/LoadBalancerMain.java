@@ -1,6 +1,8 @@
 import java.io.*;
 import java.util.*;
 
+import SimpleHashMap.Entry;
+
 
 public class LoadBalancerMain
 {
@@ -32,13 +34,20 @@ public class LoadBalancerMain
         int evictions =0;
         long time = 0;
         int[] counts = new int[maxServers];
-        
+        int server;
+        long lru;
         while (scanner.hasNextLine() && scanner.hasNext()) {
-			line = scanner.nextLine();				
-			if(map.put(line, new WebPage(time, (int)(time % maxServers))) != null)
+			line = scanner.nextLine();
+			server = (int)(time % maxServers);
+			if(map.put(line, new WebPage(time, server)) != null)
 				evictions++;
-			if(counts[(int)(time % maxServers)]++ > cacheSize){
+			if(counts[server]++ > cacheSize){
 				//search through hashtable for ones in that server and find last accessed
+				lru = time;
+				for(Entry<String, WebPage> e: map.entries()){
+					if(e.getValue().getIP == server && e.getValue().getTime() < lru)
+						lru = e.getValue().getTime();
+				}
 			}
 			time++;			
         }
