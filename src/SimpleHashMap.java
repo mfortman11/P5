@@ -263,7 +263,7 @@ public class SimpleHashMap<K, V> {
     	if (i < 0)
     		i += map.length;
     	LinkedList<Entry<K,V>> l = map[i];
-    	
+    	if(l == null)return null;
     	
     	Iterator<Entry<K, V>> it = l.iterator();
     	V v;
