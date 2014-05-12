@@ -18,9 +18,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import sun.security.krb5.KdcComm;
-
-
 /**
  * This class implements a generic map based on hash tables using chained
  * buckets for collision resolution.
