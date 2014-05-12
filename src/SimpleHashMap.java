@@ -103,7 +103,7 @@ public class SimpleHashMap<K, V> {
                                 51437,102877,205759,411527,823117,1646237,3292489,
                                 6584983,13169977,26339969,52679969,105359939,210719881,
                                 421439783,842879579,1685759167};
-    private int tableIndex = 0;
+    private int tableIndex = 0; // used as index for finding the table size
     private int numEntries = 0;//number of entries added to the hashmap
 
     /**
@@ -111,7 +111,6 @@ public class SimpleHashMap<K, V> {
      * maximum load factor <tt>0.75</tt>.
      */
     public SimpleHashMap() {
-        // TODO
     	map = new LinkedList[tableSizes[0]];//initializes hashmap
     }
 
@@ -146,13 +145,6 @@ public class SimpleHashMap<K, V> {
     		}
     	}
     	return null;
-    	/*for (Entry<K,V> e: l) {
-    		if (e.getKey().equals(key)) {
-    			return e.getValue();//returns value of that entry if found
-    		}
-    	}
-    	return null;//otherwise returns null
-    	*/
     }
 
     /**
@@ -174,40 +166,37 @@ public class SimpleHashMap<K, V> {
      * @throws NullPointerException if the key or value is <tt>null</tt>
      */
     public V put(K key, V value) {
+        // first check to see if the table needs to be resized according to the load factor.
     	if ((double) numEntries / tableSizes[tableIndex] >= MAXIMUM_LOAD_FACTOR){
     		List<Entry<K, V>> l = entries();
     		map = new LinkedList[tableSizes[tableIndex++]];
-    		
+    		// map each entry to a new location in the array with the new size.
     		Iterator<Entry<K, V>> it = l.iterator();
     		while(it.hasNext()){
     			Entry<K, V> ent = it.next();
     			reAdd(ent.getKey(),ent.getValue());
     		}
-    		/*for(Entry<K, V> e: l){
-    			put(e.getKey(),e.getValue());
-    		}*/
-
-    		
     	}
         if (key == null || value == null)
         	throw new NullPointerException();
     	
-        Entry<K,V> e = new Entry<K,V>(key, value);
+        Entry<K,V> e = new Entry<K,V>(key, value); // entry object containing key/value info.
     	
-        int i = e.getKey().hashCode() % map.length;
-    	
-        Entry<K,V> previous = null;
-    	
-        if (i < 0) i += map.length;
+        int i = e.getKey().hashCode() % map.length; // index where value should be placed
+    	   
+        if (i < 0) i += map.length; // makes sure index is not negative
+        
+        Entry<K,V> previous = null; // reference to entry previously stored in key
     	
         if (map[i] == null) {
-    		map[i] = new LinkedList<Entry<K,V>>();
+    		map[i] = new LinkedList<Entry<K,V>>(); // initialize a new "bucket" for the array element if necessary
     	}
     	
         LinkedList<Entry<K,V>> l = map[i];
     	numEntries++;
     	
-    	//for(Entry<K,V> t: l)
+        
+        // Iterate through entries sharing the same "bucket", searching for the correct pair.
     	Iterator<Entry<K, V>> t = l.iterator();
     	while(t.hasNext()){
     		Entry<K,V> ent = t.next();
@@ -220,6 +209,13 @@ public class SimpleHashMap<K, V> {
     	l.add(e);
     	return null;
     }
+    
+    /**
+     * Recalculates the mapping for the specified key from this map if present.
+     *
+     * @param key the key to be updated
+     * @param val value associated with key
+     */
     private void reAdd(K key, V val){
         Entry<K,V> e = new Entry<K,V>(key, val);
     	
@@ -233,7 +229,6 @@ public class SimpleHashMap<K, V> {
     	
         LinkedList<Entry<K,V>> l = map[i];
     	
-    	//for(Entry<K,V> t: l)
     	Iterator<Entry<K, V>> t = l.iterator();
     	while(t.hasNext()){
     		Entry<K,V> ent = t.next();
@@ -256,17 +251,20 @@ public class SimpleHashMap<K, V> {
     public V remove(Object key) {
         if (key == null)
         	throw new NullPointerException();
+        // Get index from hashcode.
     	int i = key.hashCode() % map.length;
     	if (i < 0)
-    		i += map.length;
+    		i += map.length; // make sure hashcode is non-negative.
     	LinkedList<Entry<K,V>> l = map[i];
     	if(l == null)return null;
     	
+        // iterate through elements contained in same bucket.
     	Iterator<Entry<K, V>> it = l.iterator();
-    	V v;
+    	V v; // container for value
     	while(it.hasNext()){
     		Entry<K, V> e = it.next();
     		if(e.getKey().equals(key)){
+                // remove the key/value pair from the hash map
     			v = e.getValue();
     			l.remove(e);
     			numEntries--;
@@ -274,14 +272,6 @@ public class SimpleHashMap<K, V> {
     		}
     			
     	}
-    	/*for (Entry<K,V> e: l) {
-    		if (e.getKey().equals(key)) {
-    			V v = e.getValue();
-    			l.remove(e);
-    			numEntries--;
-    			return v;
-    		}
-    	}*/
     	return null;
     }
 
@@ -307,7 +297,6 @@ public class SimpleHashMap<K, V> {
     	//loops through the array
     	for (int i = 0; i < map.length; i++) {
     		//makes sure the linked list isn't empty
-    		
     		if (map[i] != null){
     			Iterator<Entry<K,V>> it = map[i].iterator();
     			//if it is not null adds each element of the LinkedList to entries
@@ -317,12 +306,5 @@ public class SimpleHashMap<K, V> {
     		}
     	}
     	return entries;
-    }
-    /**
-     * returns array of the HashMap
-     * @return array of the HashMap
-     */
-    public LinkedList<Entry<K,V>>[] getMap(){
-    	return map;
     }
 }
