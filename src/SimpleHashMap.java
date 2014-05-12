@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import sun.security.krb5.KdcComm;
+
 
 /**
  * This class implements a generic map based on hash tables using chained
@@ -138,12 +140,22 @@ public class SimpleHashMap<K, V> {
     	//otherwise searches through the list to find the passed key
     	LinkedList<Entry<K,V>> l = map[i];
     	if (l == null) return null;
-    	for (Entry<K,V> e: l) {
+    	
+    	Iterator<Entry<K,V>> it = l.iterator();
+    	while(it.hasNext()){
+    		Entry<K, V> e = it.next();
+    		if (e.getKey().equals(key)) {
+    			return e.getValue();//returns value of that entry if found
+    		}
+    	}
+    	return null;
+    	/*for (Entry<K,V> e: l) {
     		if (e.getKey().equals(key)) {
     			return e.getValue();//returns value of that entry if found
     		}
     	}
     	return null;//otherwise returns null
+    	*/
     }
 
     /**
@@ -165,36 +177,74 @@ public class SimpleHashMap<K, V> {
      * @throws NullPointerException if the key or value is <tt>null</tt>
      */
     public V put(K key, V value) {
-    	if ((double) numEntries / map.length > MAXIMUM_LOAD_FACTOR){
+    	if ((double) numEntries / tableSizes[tableIndex] >= MAXIMUM_LOAD_FACTOR){
     		List<Entry<K, V>> l = entries();
     		map = new LinkedList[tableSizes[tableIndex++]];
-    		for(Entry<K, V> e: l){
-    			put(e.getKey(),e.getValue());
+    		
+    		Iterator<Entry<K, V>> it = l.iterator();
+    		while(it.hasNext()){
+    			Entry<K, V> ent = it.next();
+    			reAdd(ent.getKey(),ent.getValue());
     		}
+    		/*for(Entry<K, V> e: l){
+    			put(e.getKey(),e.getValue());
+    		}*/
 
     		
     	}
         if (key == null || value == null)
         	throw new NullPointerException();
-    	Entry<K,V> e = new Entry<K,V>(key, value);
-    	int i = e.getKey().hashCode() % map.length;
-    	Entry<K,V> previous = null;
-    	if (i < 0) i += map.length;
-    	if (map[i] == null) {
+    	
+        Entry<K,V> e = new Entry<K,V>(key, value);
+    	
+        int i = e.getKey().hashCode() % map.length;
+    	
+        Entry<K,V> previous = null;
+    	
+        if (i < 0) i += map.length;
+    	
+        if (map[i] == null) {
     		map[i] = new LinkedList<Entry<K,V>>();
     	}
-    	LinkedList<Entry<K,V>> l = map[i];
+    	
+        LinkedList<Entry<K,V>> l = map[i];
     	numEntries++;
-    	for(Entry<K,V> t: l){
-    		if(t.getKey().equals(key)){
-    			previous = t;
-    			t.setValue(value);
+    	
+    	//for(Entry<K,V> t: l)
+    	Iterator<Entry<K, V>> t = l.iterator();
+    	while(t.hasNext()){
+    		Entry<K,V> ent = t.next();
+    		if(ent.getKey().equals(key)){
+    			previous = ent;
+    			ent.setValue(value);
     			return previous.getValue();
-    		}
-    			
+    		}	
     	}
     	l.add(e);
     	return null;
+    }
+    private void reAdd(K key, V val){
+        Entry<K,V> e = new Entry<K,V>(key, val);
+    	
+        int i = e.getKey().hashCode() % map.length;
+
+        if (i < 0) i += map.length;
+    	
+        if (map[i] == null) {
+    		map[i] = new LinkedList<Entry<K,V>>();
+    	}
+    	
+        LinkedList<Entry<K,V>> l = map[i];
+    	
+    	//for(Entry<K,V> t: l)
+    	Iterator<Entry<K, V>> t = l.iterator();
+    	while(t.hasNext()){
+    		Entry<K,V> ent = t.next();
+    		if(ent.getKey().equals(key)){
+    			ent.setValue(val);
+    		}	
+    	}
+    	l.add(e);
     }
 
     /**
@@ -214,14 +264,27 @@ public class SimpleHashMap<K, V> {
     		i += map.length;
     	LinkedList<Entry<K,V>> l = map[i];
     	
-    	for (Entry<K,V> e: l) {
+    	
+    	Iterator<Entry<K, V>> it = l.iterator();
+    	V v;
+    	while(it.hasNext()){
+    		Entry<K, V> e = it.next();
+    		if(e.getKey().equals(key)){
+    			v = e.getValue();
+    			l.remove(e);
+    			numEntries--;
+    			return v;
+    		}
+    			
+    	}
+    	/*for (Entry<K,V> e: l) {
     		if (e.getKey().equals(key)) {
     			V v = e.getValue();
     			l.remove(e);
     			numEntries--;
     			return v;
     		}
-    	}
+    	}*/
     	return null;
     }
 
@@ -244,16 +307,15 @@ public class SimpleHashMap<K, V> {
      */
     public List<Entry<K, V>> entries() {
     	List<Entry<K, V>> entries = new LinkedList<Entry<K, V>>();
-    	LinkedList<Entry<K,V>> l;
     	//loops through the array
     	for (int i = 0; i < map.length; i++) {
     		//makes sure the linked list isn't empty
     		
     		if (map[i] != null){
-    			l = map[i];
+    			Iterator<Entry<K,V>> it = map[i].iterator();
     			//if it is not null adds each element of the LinkedList to entries
-    			for(Entry<K,V> e: l){
-    				entries.add(e);
+    			while(it.hasNext()){
+    				entries.add(it.next());
     			}
     		}
     	}
