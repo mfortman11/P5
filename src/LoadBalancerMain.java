@@ -42,54 +42,73 @@ public class LoadBalancerMain
         while (scanner.hasNextLine()) {
 			line = scanner.nextLine();
 			server = (int)(sCount % maxServers);
-			if (map.get(line) == null) {
-				if(counts[server] >= cacheSize){
-					evictions++;
-					//List<SimpleHashMap.Entry<String, WebPage>> entryList = map.entries();
-					Iterator<SimpleHashMap.Entry<String,WebPage>> itr = map.entries().iterator();
-					List<SimpleHashMap.Entry<String, WebPage>> correctServer =
-							new LinkedList<SimpleHashMap.Entry<String, WebPage>>();
-					while (itr.hasNext()) {
-						SimpleHashMap.Entry<String,WebPage> tempEntry = itr.next();
-						if(tempEntry.getValue().getIP() == server){ //&& tempEntry.getValue().getTime() < lru){
-							correctServer.add(tempEntry);
-						}
-					}	
-					Iterator<SimpleHashMap.Entry<String,WebPage>> it = correctServer.iterator();
-					lru = it.next();
-					while (it.hasNext()){
-						SimpleHashMap.Entry<String, WebPage> temp = it.next();
-						if(temp.getValue().getTime() < lru.getValue().getTime()){
-							lru = temp;
+			if (map.get(line) == null){
+				map.put(line, new WebPage(time, server));
+
+				//if server does not have space then evicts page that matches
+				//server with smallest access time
+				if (counts[server] >= cacheSize){
+					//Iterator for list of entries in map
+					Iterator<SimpleHashMap.Entry<String,WebPage>> itr = 
+							map.entries().iterator();
+					//Entry in map that matches with server and has smallest
+					//Access Time
+					SimpleHashMap.Entry<String, WebPage> smallTime = null;
+					//List of entries that match server
+					List<SimpleHashMap.Entry<String, WebPage>> rightServer = 
+							new LinkedList
+							<SimpleHashMap.Entry<String, WebPage>>();
+					
+					//Runs through entries list and adds entries with right 
+					//server to right Server list
+					while(itr.hasNext()){
+						SimpleHashMap.Entry<String, WebPage> temp = 
+								itr.next();
+						if(temp.getValue().getIP() == server){
+							rightServer.add(temp);
 						}
 					}
-							/*for(SimpleHashMap.Entry<String, WebPage> e: mapArray[i]){
-								if(e.getValue().getIP() == server && e.getValue().getTime() < lru){
-									lru = e.getValue().getTime();
-									lruKey = e.getKey();
-								}	
-							}*/
-				
-					/*List<SimpleHashMap.Entry<String, WebPage>> entries = map.entries();
-					for(SimpleHashMap.Entry<String, WebPage> e: entries){
-						if(e.getValue().getIP() == server && e.getValue().getTime() < lru){
-							lru = e.getValue().getTime();
-							lruKey = e.getKey();
+					Iterator<SimpleHashMap.Entry<String, WebPage>> serverItr = 
+							rightServer.iterator();
+					smallTime = serverItr.next();
+					//Searches list of right servers for entry with smallest
+					//access time
+					while(serverItr.hasNext()){
+						SimpleHashMap.Entry<String, WebPage> temp = 
+								serverItr.next();
+						if(temp.getValue().getTime() <
+								smallTime.getValue().getTime()){
+							smallTime = temp;
 						}
-					}*/
-					map.remove(lru);
-					map.put(line, new WebPage(time, server));
-				}
+					}
+					//remove from map
+//					Scanner stop = new Scanner(System.in);
+//					System.out.println("Page to be added: " + map.get(line));
+//					System.out.println("Page to be evicted: " + map.get(smallTime));
+//					stop.next();
+					
+					map.remove(smallTime);
+					map.put(line, new WebPage (time,server));
 
+
+					if (isVerbose){
+						//Scanner scnr = new Scanner(System.in);
+						System.out.println("Page " + smallTime + 
+								" has been evicted.");
+						//scnr.next();
+					}
+					evictions++;
+				}//end eviction block
 				counts[server]++;
 				sCount++;
+
 			} else {
 				server = map.get(line).getIP();
 				map.put(line, new WebPage(time, server));
 				counts[server]++;
 			}
 			time++;
-			System.out.println(line + " " + time);
+			//System.out.println(line + " " + time);
         }
         scanner.close();
         
