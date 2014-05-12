@@ -1,8 +1,23 @@
+///////////////////////////////////////////////////////////////////////////////
+//                   ALL STUDENTS COMPLETE THESE SECTIONS
+// Title:            Program 5
+// Files:            SimpleHashMap.java, WebPage.java
+// Semester:         CS367 Spring 2014
+//
+// Author:           Michael Darling
+// Email:            mddarling@wisc.edu
+// CS Login:         mdarling
+// Lecturer's Name:  Jim Skrentny
+// Lab Section:      
+//
+// Pair Partner:     Mike Fortman
+// Email:            mfortman@wisc.edu
+// CS Login:         fortman
+// Lecturer's Name:  Jim Skrentny
+//////////////////////////// 80 columns wide //////////////////////////////////
+
 import java.io.*;
 import java.util.*;
-
-
-
 
 public class LoadBalancerMain
 {
@@ -92,20 +107,24 @@ public class LoadBalancerMain
 
 
 					if (isVerbose){
-						//Scanner scnr = new Scanner(System.in);
-						System.out.println("Page " + smallTime + 
+						System.out.println("Page " + smallTime.getKey() + 
 								" has been evicted.");
-						//scnr.next();
 					}
 					evictions++;
 				}//end eviction block
 				counts[server]++;
 				sCount++;
+				if (isVerbose){
+					System.out.println("192.168.0." + server);
+				}
 
 			} else {
 				server = map.get(line).getIP();
 				map.put(line, new WebPage(time, server));
 				counts[server]++;
+				if (isVerbose){
+					System.out.println("192.168.0." + server);
+				}
 			}
 			time++;
 			//System.out.println(line + " " + time);
