@@ -36,27 +36,32 @@ public class LoadBalancerMain
         long sCount = 0;
         int[] counts = new int[maxServers];
         int server;
-        long lru;
-        String lruKey = null;
-        while (scanner.hasNextLine() && scanner.hasNext()) {
+        SimpleHashMap.Entry<String, WebPage> lru = null;
+        //long lru;
+        //String lruKey = null;
+        while (scanner.hasNextLine()) {
 			line = scanner.nextLine();
 			server = (int)(sCount % maxServers);
 			if (map.get(line) == null) {
-				
 				if(counts[server] >= cacheSize){
 					evictions++;
-					lru = time;
-					List<SimpleHashMap.Entry<String, WebPage>> entryList = map.entries();
-					Iterator<SimpleHashMap.Entry<String,WebPage>> itr = entryList.iterator();
+					//List<SimpleHashMap.Entry<String, WebPage>> entryList = map.entries();
+					Iterator<SimpleHashMap.Entry<String,WebPage>> itr = map.entries().iterator();
+					List<SimpleHashMap.Entry<String, WebPage>> correctServer =
+							new LinkedList<SimpleHashMap.Entry<String, WebPage>>();
 					while (itr.hasNext()) {
 						SimpleHashMap.Entry<String,WebPage> tempEntry = itr.next();
-						if(tempEntry.getValue().getIP() == server && tempEntry.getValue().getTime() < lru){
-							lru = tempEntry.getValue().getTime();
-							lruKey = tempEntry.getKey();
-							map.remove(lruKey);
-							break;
-						}	
-
+						if(tempEntry.getValue().getIP() == server){ //&& tempEntry.getValue().getTime() < lru){
+							correctServer.add(tempEntry);
+						}
+					}	
+					Iterator<SimpleHashMap.Entry<String,WebPage>> it = correctServer.iterator();
+					lru = it.next();
+					while (it.hasNext()){
+						SimpleHashMap.Entry<String, WebPage> temp = it.next();
+						if(temp.getValue().getTime() < lru.getValue().getTime()){
+							lru = temp;
+						}
 					}
 							/*for(SimpleHashMap.Entry<String, WebPage> e: mapArray[i]){
 								if(e.getValue().getIP() == server && e.getValue().getTime() < lru){
@@ -72,9 +77,10 @@ public class LoadBalancerMain
 							lruKey = e.getKey();
 						}
 					}*/
-					
+					map.remove(lru);
+					map.put(line, new WebPage(time, server));
 				}
-				map.put(line, new WebPage(time, server));
+
 				counts[server]++;
 				sCount++;
 			} else {
@@ -97,4 +103,5 @@ public class LoadBalancerMain
     
     
 
+    
 }
